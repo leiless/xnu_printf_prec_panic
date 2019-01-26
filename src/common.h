@@ -11,6 +11,7 @@
 #ifndef __kext_makefile__
 #define __TS__          "????/??/?? ??:??:??+????"
 #define KEXTNAME_S      "xnu_printf_prec_panic"
+#define BUNDLEID_S      "cn.junkman.kext." KEXTNAME_S
 #endif
 
 #define LOG(fmt, ...)        printf(KEXTNAME_S ": " fmt "\n", ##__VA_ARGS__)

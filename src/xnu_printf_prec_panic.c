@@ -7,6 +7,7 @@
 #include <kern/thread.h>
 #include <kern/task.h>
 #include "common.h"
+#include "kernctl.h"
 
 kern_return_t xnu_printf_prec_panic_start(
         kmod_info_t *ki __unused,
