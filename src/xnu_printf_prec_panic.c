@@ -30,7 +30,7 @@ static void thread_runloop(void *arg __unused, wait_result_t wres __unused)
     while (cond_keepalive) {
         ++i;
         LOG_DBG("wake count #%llu", i);
-        (void) msleep(&i, NULL, PPAUSE, NULL, &ts);
+        (void) msleep((void *) &cond_keepalive, NULL, PPAUSE, NULL, &ts);
     }
 
     LOG("conditional variable changed");
@@ -63,6 +63,7 @@ kern_return_t xnu_printf_prec_panic_stop(
         void *d __unused)
 {
     cond_keepalive = 0;
+    wakeup_one((void *) &cond_keepalive);
     LOG("kext unloaded");
     return KERN_SUCCESS;
 }
