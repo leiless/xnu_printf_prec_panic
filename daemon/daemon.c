@@ -7,14 +7,36 @@
 #include <string.h>             /* memset */
 #include <unistd.h>             /* close */
 #include <limits.h>
-
+#include <time.h>
+#include <sys/time.h>
 #include <sys/errno.h>          /* errno */
 #include <sys/kern_control.h>   /* sockaddr_ctl  ctl_info */
 #include <sys/socket.h>         /* socket */
 #include <sys/sys_domain.h>     /* SYSPROTO_CONTROL */
 #include <sys/ioctl.h>          /* ioctl */
 
-#define LOG(fmt, ...)           printf(fmt "\n", ##__VA_ARGS__)
+#define TIMESTR_SZ 32
+
+static const char *timestr(void)
+{
+    static char str[TIMESTR_SZ];
+    struct timeval tv;
+    struct tm *t;
+
+    (void) gettimeofday(&tv, NULL);     /* Won't fail */
+    t = localtime(&tv.tv_sec);
+    *str = '\0';
+    if (t != NULL) {
+        (void)
+        snprintf(str, TIMESTR_SZ, "%2d/%02d/%02d %02d:%02d:%02d.%03d%+05ld",
+            (1900 + t->tm_year) % 100, t->tm_mon + 1, t->tm_mday,
+            t->tm_hour, t->tm_min, t->tm_sec, tv.tv_usec / 1000, t->tm_gmtoff * 100 / 3600);
+    }
+
+    return str;
+}
+
+#define LOG(fmt, ...)           printf("%s " fmt "\n", timestr(), ##__VA_ARGS__)
 #define LOG_ERR(fmt, ...)       LOG("[ERR] " fmt, ##__VA_ARGS__)
 #ifdef DEBUG
 #define LOG_DBG(fmt, ...)       LOG("[DBG] " fmt, ##__VA_ARGS__)
