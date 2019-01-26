@@ -9,7 +9,7 @@ CFLAGS+=-std=c99 -Wall -Wextra -Werror \
 	-arch x86_64 -arch i386 \
 	-mmacosx-version-min=10.4
 SOURCES=$(wildcard *.c)
-EXECUTABLE=daemon
+EXECUTABLE=daemon.out
 RM=rm
 
 all: debug
