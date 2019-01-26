@@ -6,7 +6,7 @@
 #include <mach/mach_types.h>
 #include <kern/thread.h>
 #include <kern/task.h>
-#include "xnu_printf_prec_panic.h"
+#include "common.h"
 
 kern_return_t xnu_printf_prec_panic_start(
         kmod_info_t *ki __unused,
