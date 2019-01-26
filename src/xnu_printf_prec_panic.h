@@ -6,6 +6,7 @@
 #define XNU_PRINTF_PREC_PANIC_H
 
 #include <libkern/libkern.h>
+#include <kern/debug.h>
 
 #ifndef __kext_makefile__
 #define __TS__          "????/??/?? ??:??:??+????"
