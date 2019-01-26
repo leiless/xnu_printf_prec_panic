@@ -14,7 +14,7 @@
 #include <sys/socket.h>         /* socket */
 #include <sys/sys_domain.h>     /* SYSPROTO_CONTROL */
 #include <sys/ioctl.h>          /* ioctl */
-#include <sys/_types/_u_char.h>
+#include "_u_char.h"
 
 #define TIMESTR_SZ 32
 
