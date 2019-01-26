@@ -38,13 +38,5 @@
     (ex) ? (void) 0 : LOG_BUG("Assert `%s' failed: " fmt, #ex, ##__VA_ARGS__)
 #endif
 
-/**
- * kern_os_* family provides zero-out memory allocation
- * see: xnu/libkern/c++/OSRuntime.cpp
- */
-extern void *kern_os_malloc(size_t);
-extern void kern_os_free(void *);
-extern void *kern_os_realloc(void *, size_t);
-
 #endif      /* XNU_PRINTF_PREC_PANIC_H */
 
