@@ -118,13 +118,27 @@ int setsockopt_to_kern_ctl(int fd, int type, const char *msg, size_t len)
         LOG_ERR("setsockopt(2) fail  fd: %d type: %d len: %zu", fd, type, len);
     }
 
-out_exit;
+out_exit:
     return e;
 }
 
+#define SOCKOPT_PSEUDO      1000
+
 int main(void)
 {
+    int fd;
 
+    fd = connect_to_kern_ctl(KERN_CTL_NAME);
+    if (fd < 0) exit(EXIT_FAILURE);
+
+    while (1) {
+        if (setsockopt_to_kern_ctl(fd, SOCKOPT_PSEUDO, NULL, 0)) {
+            break;
+        }
+        (void) sleep(1);
+    }
+
+    (void) close(fd);
     return 0;
 }
 
