@@ -10,19 +10,19 @@
 #include "kernctl.h"
 
 kern_return_t xnu_printf_prec_panic_start(
-        kmod_info_t *ki __unused,
-        void *d __unused)
+        kmod_info_t *ki,
+        void *d)
 {
-
-    return KERN_SUCCESS;
+    UNUSED(ki, d);
+    return install_kern_ctl();
 }
 
 kern_return_t xnu_printf_prec_panic_stop(
-        kmod_info_t *ki __unused,
-        void *d __unused)
+        kmod_info_t *ki,
+        void *d)
 {
-
-    return KERN_SUCCESS;
+    UNUSED(ki, d);
+    return uninstall_kern_ctl();
 }
 
 #ifdef __kext_makefile__

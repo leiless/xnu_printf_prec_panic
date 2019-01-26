@@ -133,7 +133,7 @@ kern_return_t install_kern_ctl(void)
 {
     errno_t e = ctl_register(&kctlreg, &kctlref);
     if (e == 0) {
-        LOG_DBG("kernel control %s registered", kctlreg.ctl_name);
+        LOG("kernel control %s registered", kctlreg.ctl_name);
     } else {
         LOG_ERR("ctl_register() fail  errno: %d", e);
     }
@@ -144,7 +144,7 @@ kern_return_t uninstall_kern_ctl(void)
 {
     errno_t e = ctl_deregister(kctlref);
     if (e == 0) {
-        LOG_DBG("kernel control %s deregistered", kctlreg.ctl_name);
+        LOG("kernel control %s deregistered", kctlreg.ctl_name);
     } else {
         LOG_ERR("ctl_deregister() fail  errno: %d", e);
     }
