@@ -33,7 +33,9 @@ static void thread_runloop(void *arg __unused, wait_result_t wres __unused)
         (void) msleep((void *) &cond_keepalive, NULL, PPAUSE, NULL, &ts);
     }
 
+    kassert(current_thread() == panic_thd);
     LOG("conditional variable changed");
+    LOG("kernel thread %p:%#llx is dying", panic_thd, thread_tid(panic_thd));
 
     /* for the extra refcnt from kernel_thread_start() */
     thread_deallocate(panic_thd);
@@ -41,7 +43,7 @@ static void thread_runloop(void *arg __unused, wait_result_t wres __unused)
     e = thread_terminate(panic_thd);
     kassertf(e == KERN_SUCCESS, "thread_terminate() fail  errno: %d", e);
 
-    LOG("kernel thread %p:%#llx destroyed", panic_thd, thread_tid(panic_thd));
+    __builtin_unreachable();
 }
 
 kern_return_t xnu_printf_prec_panic_start(
