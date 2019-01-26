@@ -28,9 +28,10 @@ static const char *timestr(void)
     *str = '\0';
     if (t != NULL) {
         (void)
-        snprintf(str, TIMESTR_SZ, "%2d/%02d/%02d %02d:%02d:%02d.%03d%+05ld",
+        snprintf(str, TIMESTR_SZ, "%2d/%02d/%02d %02d:%02d:%02d.%04d%+05ld",
             (1900 + t->tm_year) % 100, t->tm_mon + 1, t->tm_mday,
-            t->tm_hour, t->tm_min, t->tm_sec, tv.tv_usec / 1000, t->tm_gmtoff * 100 / 3600);
+            t->tm_hour, t->tm_min, t->tm_sec, tv.tv_usec / 100,
+            t->tm_gmtoff * 100 / 3600);
     }
 
     return str;
