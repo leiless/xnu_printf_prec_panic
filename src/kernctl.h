@@ -13,3 +13,4 @@ kern_return_t install_kern_ctl(void);
 kern_return_t uninstall_kern_ctl(void);
 
 #endif      /* KERNCTL_H */
+
