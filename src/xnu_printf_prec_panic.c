@@ -52,9 +52,9 @@ static void thread_runloop(void *arg __unused, wait_result_t wres __unused)
     LOG("kernel thread %p:%#llx is dying", panic_thd, thread_tid(panic_thd));
 
     /* for the extra refcnt from kernel_thread_start() */
-    thread_deallocate(panic_thd);
+    thread_deallocate(current_thread());
     /* thread done */
-    e = thread_terminate(panic_thd);
+    e = thread_terminate(current_thread());
     kassertf(e == KERN_SUCCESS, "thread_terminate() fail  errno: %d", e);
 
     /* see: xnu/bsd/net/dlil.c#ifnet_start_thread_fn */
