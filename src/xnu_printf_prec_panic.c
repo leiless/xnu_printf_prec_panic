@@ -2,26 +2,64 @@
  * Created 190126 lynnl
  */
 
+#include <sys/systm.h>
 #include <mach/mach_types.h>
+#include <kern/thread.h>
+#include "xnu_printf_prec_panic.h"
 
-#ifndef __TS__
-#define __TS__      "????/??/?? ??:??:??+????"
-#endif
+/**
+ * Terminate a thread(not exported KPI)
+ * @return  0 if terminated  errno o.w.
+ *          KERN_INVALID_ARGUMENT   if thread is THREAD_NULL
+ *          KERN_FAILURE            if try stop kernel_task by other thread
+ *          KERN_TERMINATED         if the thread already terminated
+ * see: xnu/osfmk/kern/thread_act.c#thread_terminate
+ */
+extern kern_return_t thread_terminate(thread_t);
+
+static void thread_runloop(void *arg __unused, wait_result_t wres __unused)
+{
+    static struct timespec ts = {5, 0};
+    static uint64_t i = 0;
+
+    while (1) {
+        ++i;
+        LOG_DBG("wakeup #%llu", i);
+        (void) msleep(NULL, NULL, PPAUSE, NULL, &ts);
+    }
+}
+
+static thread_t panic_thread = THREAD_NULL;
 
 kern_return_t xnu_printf_prec_panic_start(
         kmod_info_t *ki __unused,
         void *d __unused)
 {
-
-    return KERN_SUCCESS;
+    kern_return_t e;
+    e = kernel_thread_start(thread_runloop, NULL, &panic_thread);
+    if (e != KERN_SUCCESS) {
+        LOG_ERR("kernel_thread_start() fail  errno: %d", e);
+    } else {
+        LOG("kernel thread %p started", panic_thread);
+    }
+    return e;
 }
 
 kern_return_t xnu_printf_prec_panic_stop(
         kmod_info_t *ki __unused,
         void *d __unused)
 {
+    kern_return_t e;
+    e = thread_terminate(panic_thread);
+    if (e != KERN_SUCCESS) {
+        LOG_ERR("thread_terminate() fail  errno: %d", e);
+        goto out_exit;
+    }
 
-    return KERN_SUCCESS;
+    thread_deallocate(panic_thread);
+    LOG("kernel thread %p destroyed", panic_thread);
+out_exit:
+    return e;
 }
 
 #ifdef __kext_makefile__
