@@ -87,7 +87,7 @@ static errno_t kctl_setopt(
 
     s = (char *) data;
     /* Assume data is C string */
-    LOG("setopt()  opt: %d data: %.*s", opt, (int) len, s);
+    LOG("setopt()  opt: %4d data: %.*s", opt, (int) len, s);
 
     return 0;
 }

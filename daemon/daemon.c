@@ -148,17 +148,21 @@ out_exit:
     return e;
 }
 
-#define SOCKOPT_PSEUDO      1000
+/* XXX: should only used for `char[]'  NOT `char *' */
+#define STRLEN(s)           (sizeof(s) - 1)
 
 int main(void)
 {
     int fd;
+    char junk[] = "hypothesis";
+
+    srand(time(NULL));
 
     fd = connect_to_kern_ctl(KERN_CTL_NAME);
     if (fd < 0) exit(EXIT_FAILURE);
 
     while (1) {
-        if (setsockopt_to_kern_ctl(fd, SOCKOPT_PSEUDO, NULL, 0)) {
+        if (setsockopt_to_kern_ctl(fd, rand() % 10000, junk, STRLEN(junk))) {
             break;
         }
         (void) sleep(1);
