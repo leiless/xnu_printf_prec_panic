@@ -5,42 +5,55 @@
 #include <sys/systm.h>
 #include <mach/mach_types.h>
 #include <kern/thread.h>
+#include <kern/task.h>
 #include "xnu_printf_prec_panic.h"
 
 /**
  * Terminate a thread(not exported KPI)
  * @return  0 if terminated  errno o.w.
  *          KERN_INVALID_ARGUMENT   if thread is THREAD_NULL
- *          KERN_FAILURE            if try stop kernel_task by other thread
+ *          KERN_FAILURE            if not terminate by itself
  *          KERN_TERMINATED         if the thread already terminated
  * see: xnu/osfmk/kern/thread_act.c#thread_terminate
  */
 extern kern_return_t thread_terminate(thread_t);
 
+static thread_t panic_thd = THREAD_NULL;
+static volatile uint8_t cond_keepalive = 1;
+
 static void thread_runloop(void *arg __unused, wait_result_t wres __unused)
 {
-    static struct timespec ts = {5, 0};
+    static struct timespec ts = {10, 0};
     static uint64_t i = 0;
+    kern_return_t e;
 
-    while (1) {
+    while (cond_keepalive) {
         ++i;
-        LOG_DBG("wakeup #%llu", i);
-        (void) msleep(NULL, NULL, PPAUSE, NULL, &ts);
+        LOG_DBG("wake count #%llu", i);
+        (void) msleep(&i, NULL, PPAUSE, NULL, &ts);
     }
-}
 
-static thread_t panic_thread = THREAD_NULL;
+    LOG("conditional variable changed");
+
+    /* for the extra refcnt from kernel_thread_start() */
+    thread_deallocate(panic_thd);
+    /* thread done */
+    e = thread_terminate(panic_thd);
+    kassertf(e == KERN_SUCCESS, "thread_terminate() fail  errno: %d", e);
+
+    LOG("kernel thread %p:%#llx destroyed", panic_thd, thread_tid(panic_thd));
+}
 
 kern_return_t xnu_printf_prec_panic_start(
         kmod_info_t *ki __unused,
         void *d __unused)
 {
     kern_return_t e;
-    e = kernel_thread_start(thread_runloop, NULL, &panic_thread);
+    e = kernel_thread_start(thread_runloop, NULL, &panic_thd);
     if (e != KERN_SUCCESS) {
         LOG_ERR("kernel_thread_start() fail  errno: %d", e);
     } else {
-        LOG("kernel thread %p started", panic_thread);
+        LOG("kernel thread %p:%#llx started", panic_thd, thread_tid(panic_thd));
     }
     return e;
 }
@@ -49,17 +62,9 @@ kern_return_t xnu_printf_prec_panic_stop(
         kmod_info_t *ki __unused,
         void *d __unused)
 {
-    kern_return_t e;
-    e = thread_terminate(panic_thread);
-    if (e != KERN_SUCCESS) {
-        LOG_ERR("thread_terminate() fail  errno: %d", e);
-        goto out_exit;
-    }
-
-    thread_deallocate(panic_thread);
-    LOG("kernel thread %p destroyed", panic_thread);
-out_exit:
-    return e;
+    cond_keepalive = 0;
+    LOG("kext unloaded");
+    return KERN_SUCCESS;
 }
 
 #ifdef __kext_makefile__
