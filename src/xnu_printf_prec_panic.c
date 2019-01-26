@@ -26,7 +26,7 @@ static volatile int8_t cond_keepalive = 1;
  */
 static void printf_prec_panic_test(void)
 {
-    int sz = 19;
+    int sz = 11;
     char *p = _MALLOC(sz, M_TEMP, M_NOWAIT);
     int n;
 
@@ -35,7 +35,7 @@ static void printf_prec_panic_test(void)
         return;
     }
 
-    n = snprintf(p, sz, "%#018llx", (uint64_t) p);
+    n = snprintf(p, sz, "%#010x", (uint32_t) p);
     kassertf(n == sz-1, "n is %d", n);
     kassertf(p[sz-1] == '\0', "p[%d] is %#x", sz-1, p[sz-1]);
     /* Manually clear the EOS to test printf() precision print */
@@ -60,7 +60,7 @@ static void printf_prec_panic_test(void)
  */
 static void thread_runloop(void *arg __unused, wait_result_t wres __unused)
 {
-    static struct timespec ts = {0, 50 * MS_PER_NS};
+    static struct timespec ts = {0, 10 * MS_PER_NS};
 
     while (cond_keepalive) {
         printf_prec_panic_test();
