@@ -1,6 +1,9 @@
 /*
  * Created 190126 lynnl
  */
+
+#include "_u_char.h"
+
 #include <stdio.h>
 #include <assert.h>
 #include <stdlib.h>
@@ -14,7 +17,6 @@
 #include <sys/socket.h>         /* socket */
 #include <sys/sys_domain.h>     /* SYSPROTO_CONTROL */
 #include <sys/ioctl.h>          /* ioctl */
-#include "_u_char.h"
 
 #define TIMESTR_SZ 32
 
