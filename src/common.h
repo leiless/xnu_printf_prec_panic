@@ -14,9 +14,16 @@
 #define BUNDLEID_S      "cn.junkman.kext." KEXTNAME_S
 #endif
 
+/*
+ * Used to indicate unused function parameters
+ * see: <sys/cdefs.h>#__unused
+ */
+#define UNUSED(arg0, ...)   (void) ((void) arg0, ##__VA_ARGS__)
+
 #define LOG(fmt, ...)        printf(KEXTNAME_S ": " fmt "\n", ##__VA_ARGS__)
 #define LOG_ERR(fmt, ...)    LOG("[ERR] " fmt, ##__VA_ARGS__)
 #define LOG_BUG(fmt, ...)    LOG("[BUG] " fmt, ##__VA_ARGS__)
+#define LOG_OFF(fmt, ...)    UNUSED(0, ##__VA_ARGS__)
 #ifdef DEBUG
 #define LOG_DBG(fmt, ...)    LOG("[DBG] " fmt, ##__VA_ARGS__)
 #else

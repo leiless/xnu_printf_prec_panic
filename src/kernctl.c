@@ -6,29 +6,58 @@
 
 #include <sys/kern_control.h>
 #include <sys/kpi_mbuf.h>
+#include <sys/errno.h>
+#include <libkern/OSAtomic.h>
 #include "kernctl.h"
+
+/*
+ * Assume this kernel control socket is one-seat
+ */
+static volatile u_int32_t sc_unit = 0;
 
 static errno_t kctl_connect(
         kern_ctl_ref kctlref,
         struct sockaddr_ctl *sac,
         void **unitinfo)
 {
+    errno_t e = 0;
 
-    return 0;
+    UNUSED(kctlref, unitinfo);
+
+    if (!OSCompareAndSwap(0, sac->sc_unit, &sc_unit)) {
+        e = EISCONN;
+    }
+
+    if (e == 0) {
+        LOG_DBG("connected  id: %d unit: %d", sac->sc_id, sc_unit);
+    } else {
+        LOG_ERR("cannot connect  errno: %d", e);
+    }
+
+    return e;
 }
 
+/*
+ * If ctl_connect() nonzero
+ *  it'll fall through to ctl_disconnect() automatically
+ * see: xnu/bsd/kern/kern_control.c#ctl_connect
+ */
 static errno_t kctl_disconnect(
         kern_ctl_ref kctlref,
         u_int32_t unit,
         void *unitinfo)
 {
+    UNUSED(kctlref, unitinfo);
+
+    if (OSCompareAndSwap(unit, 0, &sc_unit)) {
+        LOG_DBG("disconnected  unit: %d", unit);
+    } else {
+        LOG_DBG("bad connection  unit: %d", unit);
+    }
 
     return 0;
 }
 
-/**
- * see
- */
 static errno_t kctl_send(
         kern_ctl_ref kctlref,
         u_int32_t unit,
@@ -36,8 +65,12 @@ static errno_t kctl_send(
         mbuf_t m,
         int flags)
 {
+    UNUSED(kctlref, unit, unitinfo, flags);
 
-    return 0;
+    while ((m = mbuf_free(m)) != NULL)
+        continue;
+
+    return ENOTSUP;
 }
 
 static errno_t kctl_setopt(
@@ -48,6 +81,13 @@ static errno_t kctl_setopt(
         void *data,
         size_t len)
 {
+    char *s;
+
+    UNUSED(kctlref, unit, unitinfo);
+
+    s = (char *) data;
+    /* Assume data is C string */
+    LOG("setopt()  opt: %d data: %.*s", opt, (int) len, s);
 
     return 0;
 }
@@ -60,8 +100,8 @@ static errno_t kctl_getopt(
         void *data,
         size_t *len)
 {
-
-    return 0;
+    UNUSED(kctlref, unit, unitinfo, opt, data, len);
+    return ENOTSUP;
 }
 
 /*
@@ -92,10 +132,10 @@ static kern_ctl_ref kctlref;
 kern_return_t install_kern_ctl(void)
 {
     errno_t e = ctl_register(&kctlreg, &kctlref);
-    if (e) {
-        LOG_ERR("ctl_register() fail  errno: %d", e);
-    } else {
+    if (e == 0) {
         LOG_DBG("kernel control %s registered", kctlreg.ctl_name);
+    } else {
+        LOG_ERR("ctl_register() fail  errno: %d", e);
     }
     return e ? KERN_FAILURE : KERN_SUCCESS;
 }
@@ -103,10 +143,10 @@ kern_return_t install_kern_ctl(void)
 kern_return_t uninstall_kern_ctl(void)
 {
     errno_t e = ctl_deregister(kctlref);
-    if (e) {
-        LOG_ERR("ctl_deregister() fail  errno: %d", e);
-    } else {
+    if (e == 0) {
         LOG_DBG("kernel control %s deregistered", kctlreg.ctl_name);
+    } else {
+        LOG_ERR("ctl_deregister() fail  errno: %d", e);
     }
     return e ? KERN_FAILURE : KERN_SUCCESS;
 }
