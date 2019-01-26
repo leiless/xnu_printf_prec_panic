@@ -7,16 +7,17 @@
 #include <stdio.h>
 #include <assert.h>
 #include <stdlib.h>
-#include <string.h>             /* memset */
-#include <unistd.h>             /* close */
+#include <string.h>             /* memset(3) */
+#include <unistd.h>             /* close(2) */
 #include <limits.h>
 #include <time.h>
 #include <sys/time.h>
 #include <sys/errno.h>          /* errno */
 #include <sys/kern_control.h>   /* sockaddr_ctl  ctl_info */
-#include <sys/socket.h>         /* socket */
+#include <sys/socket.h>         /* socket(2) */
 #include <sys/sys_domain.h>     /* SYSPROTO_CONTROL */
-#include <sys/ioctl.h>          /* ioctl */
+#include <sys/ioctl.h>          /* ioctl(2) */
+#include <sys/select.h>         /* select(2) */
 
 #define TIMESTR_SZ 32
 
@@ -151,6 +152,12 @@ out_exit:
 /* XXX: should only used for `char[]'  NOT `char *' */
 #define STRLEN(s)           (sizeof(s) - 1)
 
+static int ms_sleep(unsigned int ms)
+{
+    struct timeval tv = {ms / 1000, (ms % 1000) * 1000};
+    return select(0, NULL, NULL, NULL, &tv);
+}
+
 int main(void)
 {
     int fd;
@@ -165,7 +172,7 @@ int main(void)
         if (setsockopt_to_kern_ctl(fd, rand() % 10000, junk, STRLEN(junk))) {
             break;
         }
-        (void) sleep(1);
+        (void) ms_sleep(10);
     }
 
     (void) close(fd);
