@@ -22,6 +22,8 @@
 #define LOG_DBG(fmt, ...)       (void) ((void) 0, ##__VA_ARGS__)
 #endif
 
+#define KERN_CTL_NAME           "cn.junkman.kext.xnu_printf_prec_panic.kernctl"
+
 /**
  * Connect to a kernel control socket
  * @kctlname    kernel control name
@@ -82,6 +84,42 @@ out_fail:
     (void) close(fd);
     fd = -1;
     goto out_exit;
+}
+
+#define MAX_KERN_CTL_MSG_SIZE           2048
+
+/**
+ * Send setsockopt(2) message to kernel control socket
+ * @fd          socket descriptor
+ * @type        option
+ * @msg         message
+ * @len         message length
+ * @return      0 if success  -1 o.w.(errno will set)
+ */
+int setsockopt_to_kern_ctl(int fd, int type, const char *msg, size_t len)
+{
+    int e;
+
+    if (msg == NULL || len == 0) {
+        /* Prevent potential programmatic error */
+        assert(msg == NULL);
+        assert(len == 0);
+    }
+
+    if (len > MAX_KERN_CTL_MSG_SIZE) {
+        e = -1;
+        errno = EMSGSIZE;
+        LOG_ERR("message too long  fd: %d type: %d len: %zu", fd, type, len);
+        goto out_exit;
+    }
+
+    e = setsockopt(fd, SYSPROTO_CONTROL, type, (void *) msg, (socklen_t) len);
+    if (e == -1) {
+        LOG_ERR("setsockopt(2) fail  fd: %d type: %d len: %zu", fd, type, len);
+    }
+
+out_exit;
+    return e;
 }
 
 int main(void)
