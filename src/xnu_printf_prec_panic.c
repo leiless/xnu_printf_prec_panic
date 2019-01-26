@@ -31,6 +31,12 @@ static void printf_prec_panic_test(void)
     LOG_DBG("wake count #%llu", i);
 }
 
+/*
+ * XXX:
+ *  if you intended to keep this thread running even if
+ *  kernel extension is unloaded  you should never access any kext var/func
+ *  o.w. the kernel will panic(memory access violation)
+ */
 static void thread_runloop(void *arg __unused, wait_result_t wres __unused)
 {
     static struct timespec ts = {10, 0};
