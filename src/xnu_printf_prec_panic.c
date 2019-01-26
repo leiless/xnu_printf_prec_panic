@@ -21,15 +21,23 @@ extern kern_return_t thread_terminate(thread_t);
 static thread_t panic_thd = THREAD_NULL;
 static volatile uint8_t cond_keepalive = 1;
 
+/**
+ * Do printf() precision print panic test
+ */
+static void printf_prec_panic_test(void)
+{
+    static uint64_t i = 0;
+    ++i;
+    LOG_DBG("wake count #%llu", i);
+}
+
 static void thread_runloop(void *arg __unused, wait_result_t wres __unused)
 {
     static struct timespec ts = {10, 0};
-    static uint64_t i = 0;
     kern_return_t e;
 
     while (cond_keepalive) {
-        ++i;
-        LOG_DBG("wake count #%llu", i);
+        printf_prec_panic_test();
         (void) msleep((void *) &cond_keepalive, NULL, PPAUSE, NULL, &ts);
     }
 
