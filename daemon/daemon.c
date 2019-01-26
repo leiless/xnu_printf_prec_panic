@@ -29,7 +29,7 @@
  * @kctlname    kernel control name
  * @return      file descriptor  -1 if fail(errno will set)
  */
-int connect_kern_ctl(const char *kctlname)
+int connect_to_kern_ctl(const char *kctlname)
 {
     int e;
     int fd;
