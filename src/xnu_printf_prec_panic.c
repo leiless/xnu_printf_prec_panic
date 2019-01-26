@@ -26,9 +26,23 @@ static volatile int8_t cond_keepalive = 1;
  */
 static void printf_prec_panic_test(void)
 {
-    static uint64_t i = 0;
-    ++i;
-    LOG_DBG("wake count #%llu", i);
+    int sz = 19;
+    char *p = _MALLOC(sz, M_TEMP, M_NOWAIT);
+    int n;
+
+    if (p == NULL) {
+        LOG_ERR("_MALLOC() fail  OOM");
+        return;
+    }
+
+    n = snprintf(p, sz, "%#018llx", (uint64_t) p);
+    kassertf(n == sz-1, "n is %d", n);
+    kassertf(p[sz-1] == '\0', "p[%d] is %#x", sz-1, p[sz-1]);
+    /* Manually clear the EOS to test printf() precision print */
+    p[sz-1] = '!';
+
+    LOG_DBG("%.*s", sz-1, p);
+    _FREE(p, M_TEMP);
 }
 
 /*
@@ -44,7 +58,7 @@ static void printf_prec_panic_test(void)
  */
 static void thread_runloop(void *arg __unused, wait_result_t wres __unused)
 {
-    static struct timespec ts = {10, 0};
+    static struct timespec ts = {1, 0};
 
     while (cond_keepalive) {
         printf_prec_panic_test();
