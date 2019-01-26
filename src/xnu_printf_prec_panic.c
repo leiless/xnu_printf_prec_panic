@@ -43,6 +43,7 @@ static void thread_runloop(void *arg __unused, wait_result_t wres __unused)
     e = thread_terminate(panic_thd);
     kassertf(e == KERN_SUCCESS, "thread_terminate() fail  errno: %d", e);
 
+    /* see: xnu/bsd/net/dlil.c#ifnet_start_thread_fn */
     __builtin_unreachable();
 }
 
