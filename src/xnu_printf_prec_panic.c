@@ -27,7 +27,11 @@ static volatile int8_t cond_keepalive = 1;
 static void printf_prec_panic_test(void)
 {
     int sz = 11;
+#ifdef USE_LIBKERN_MALLOC
+    char *p = kern_os_malloc(sz);
+#else
     char *p = _MALLOC(sz, M_TEMP, M_NOWAIT);
+#endif
     int n;
 
     if (p == NULL) {
@@ -42,7 +46,12 @@ static void printf_prec_panic_test(void)
     p[sz-1] = '!';
 
     LOG_DBG("%.*s", sz-1, p);
+
+#ifdef USE_LIBKERN_MALLOC
+    kern_os_free(p);
+#else
     _FREE(p, M_TEMP);
+#endif
 }
 
 #define MS_PER_NS       1000000
