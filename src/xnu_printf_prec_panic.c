@@ -45,6 +45,8 @@ static void printf_prec_panic_test(void)
     _FREE(p, M_TEMP);
 }
 
+#define MS_PER_NS       1000000
+
 /*
  * XXX:
  *  if you intended to keep this thread running even if
@@ -58,7 +60,7 @@ static void printf_prec_panic_test(void)
  */
 static void thread_runloop(void *arg __unused, wait_result_t wres __unused)
 {
-    static struct timespec ts = {1, 0};
+    static struct timespec ts = {0, 50 * MS_PER_NS};
 
     while (cond_keepalive) {
         printf_prec_panic_test();
