@@ -73,6 +73,8 @@ static errno_t kctl_send(
     return ENOTSUP;
 }
 
+static volatile uint64_t cnt = 0;
+
 static errno_t kctl_setopt(
         kern_ctl_ref kctlref,
         u_int32_t unit,
@@ -87,7 +89,8 @@ static errno_t kctl_setopt(
 
     s = (char *) data;
     /* Assume data is C string */
-    LOG("setopt()  opt: %4d data: %.*s", opt, (int) len, s);
+    OSIncrementAtomic64((volatile SInt64 *) &cnt);
+    LOG("setopt()  #%llu opt: %4d data: %.*s", cnt, opt, (int) len, s);
 
     return 0;
 }
