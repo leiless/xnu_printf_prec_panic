@@ -84,13 +84,14 @@ static errno_t kctl_setopt(
         size_t len)
 {
     char *s;
+    uint64_t i;
 
     UNUSED(kctlref, unit, unitinfo);
 
     s = (char *) data;
+    i = 1 + OSIncrementAtomic64((volatile SInt64 *) &cnt);
     /* Assume data is C string */
-    OSIncrementAtomic64((volatile SInt64 *) &cnt);
-    LOG("setopt()  #%llu opt: %4d data: %.*s", cnt, opt, (int) len, s);
+    LOG("setopt()  #%llu opt: %4d data: %.*s", i, opt, (int) len, s);
 
     return 0;
 }
