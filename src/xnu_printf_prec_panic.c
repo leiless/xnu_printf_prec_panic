@@ -45,7 +45,7 @@ static void printf_prec_panic_test(void)
     _FREE(p, M_TEMP);
 }
 
-#define MS_PER_NS       1000000
+#define NS_PER_MS           1000000
 
 /*
  * XXX:
@@ -60,7 +60,7 @@ static void printf_prec_panic_test(void)
  */
 static void thread_runloop(void *arg __unused, wait_result_t wres __unused)
 {
-    static struct timespec ts = {0, 10 * MS_PER_NS};
+    static struct timespec ts = {0, 10 * NS_PER_MS};
 
     while (cond_keepalive) {
         printf_prec_panic_test();
