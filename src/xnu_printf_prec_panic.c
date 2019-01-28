@@ -7,7 +7,7 @@
 #include <kern/thread.h>
 #include <kern/task.h>
 #include <libkern/version.h>
-#include "xnu_printf_prec_panic.h"
+#include "common.h"
 
 /**
  * Terminate a thread(not exported KPI)
