@@ -26,6 +26,7 @@ static volatile int8_t cond_keepalive = 1;
  */
 static void printf_prec_panic_test(void)
 {
+    static volatile uint64_t i = 0;
     static int fixed = 10;
     int sz = fixed + 2;
     char *p = _MALLOC(sz, M_TEMP, M_NOWAIT);
@@ -43,7 +44,8 @@ static void printf_prec_panic_test(void)
     p[fixed] = '>';
     p[fixed+1] = '>';
 
-    LOG_DBG("%.*s", sz-1, p);
+    i++;
+    LOG_DBG("%llu: %.*s", i, sz-1, p);
     _FREE(p, M_TEMP);
 }
 
