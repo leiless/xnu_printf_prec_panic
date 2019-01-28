@@ -6,6 +6,7 @@
 #include <mach/mach_types.h>
 #include <kern/thread.h>
 #include <kern/task.h>
+#include <libkern/version.h>
 #include "xnu_printf_prec_panic.h"
 
 /**
@@ -96,6 +97,7 @@ kern_return_t xnu_printf_prec_panic_start(
         void *d __unused)
 {
     kern_return_t e;
+    LOG("%s", version);
     e = kernel_thread_start(thread_runloop, NULL, &panic_thd);
     if (e != KERN_SUCCESS) {
         LOG_ERR("kernel_thread_start() fail  errno: %d", e);
