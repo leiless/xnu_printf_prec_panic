@@ -22,6 +22,8 @@ extern kern_return_t thread_terminate(thread_t);
 static thread_t panic_thd = THREAD_NULL;
 static volatile int8_t cond_keepalive = 1;
 
+#define PANIC_QUICKLY       0
+
 /**
  * Do printf() precision print panic test
  */
@@ -47,7 +49,10 @@ static void printf_prec_panic_test(void)
 
     i++;
     LOG_DBG("%llu: %.*s", i, sz-1, p);
+
+#if !PANIC_QUICKLY
     _FREE(p, M_TEMP);
+#endif
 }
 
 #define NS_PER_MS           1000000
