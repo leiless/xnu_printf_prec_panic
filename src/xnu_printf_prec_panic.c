@@ -6,6 +6,8 @@
 #include <mach/mach_types.h>
 #include <kern/thread.h>
 #include <kern/task.h>
+#include <libkern/version.h>
+
 #include "common.h"
 #include "kernctl.h"
 
@@ -14,6 +16,7 @@ kern_return_t xnu_printf_prec_panic_start(
         void *d)
 {
     UNUSED(ki, d);
+    LOG("%s", version);
     return install_kern_ctl();
 }
 
