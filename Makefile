@@ -80,7 +80,7 @@ CPPFLAGS+=	-D__TS__=\"$(TIME_STAMP)\"
 ifdef MACOSX_VERSION_MIN
 CFLAGS+=	-mmacosx-version-min=$(MACOSX_VERSION_MIN)
 else
-CFLAGS+=	-mmacosx-version-min=10.12
+CFLAGS+=	-mmacosx-version-min=10.4
 endif
 CFLAGS+=	$(SDKFLAGS) \
 		-x c \
@@ -98,7 +98,7 @@ CFLAGS+=	-Wall -Wextra -Werror -Os
 ifdef MACOSX_VERSION_MIN
 LDFLAGS+=	-mmacosx-version-min=$(MACOSX_VERSION_MIN)
 else
-LDFLAGS+=	-mmacosx-version-min=10.12
+LDFLAGS+=	-mmacosx-version-min=10.4
 endif
 LDFLAGS+=	$(SDKFLAGS) \
 		-arch $(ARCH) \
