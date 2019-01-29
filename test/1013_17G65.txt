@@ -1,0 +1,83 @@
+$ sw_vers
+ProductName:	Mac OS X
+ProductVersion:	10.13.6
+BuildVersion:	17G65
+
+$ lldb /Library/Developer/KDKs/KDK_10.13.6_17G65.kdk/System/Library/Kernels/kernel.debug
+(lldb) showlldbtypesummaries
+...
+(lldb) kdp-remote 172.16.41.130
+...
+(lldb) bt
+* thread #2, name = '0xffffff80226b6940', queue = '0x0', stop reason = signal SIGSTOP
+  * frame #0: 0xffffff800c8f81b6 kernel.debug`strlcpy(dst="hypothesi", src="hypothesis??ﾭ"..., siz=10) at subrs.c:566
+    frame #1: 0xffffff800c8f8659 kernel.debug`__strlcpy_chk(dst="hypothesi", src="hypothesis??ﾭ"..., s=10, chk_size=18446744073709551615) at subrs.c:698
+    frame #2: 0xffffff800d17a76f kernel.debug`_encode_data(content=0xffffff82ea383676, arg=0xffffff80277ff700, arg_len=10, context=0xffffff82ea3834b0) at log_encode.h:64
+    frame #3: 0xffffff800d179b25 kernel.debug`_os_log_encode [inlined] _os_log_encode_arg(arg=0xffffff80277ff700, arg_len=10, ctype='\x02', is_private=false, context=0xffffff82ea3834b0) at log_encode.h:208
+    frame #4: 0xffffff800d179831 kernel.debug`_os_log_encode(format="xnu_printf_prec_panic: setopt() #%llu  unit: %d data: %#x %.*s\n", args=0xffffff82ea383530, saved_errno=0, context=0xffffff82ea3834b0) at log_encode.h:457
+    frame #5: 0xffffff800d176447 kernel.debug`_os_log_to_log_internal(oslog=0xffffff800d68eb80, type='\0', format="xnu_printf_prec_panic: setopt() #%llu  unit: %d data: %#x %.*s\n", args=0xffffff82ea3839d0, addr=0xffffff7f8f142e2f, dso=0xffffff7f8f142000) at log.c:315
+    frame #6: 0xffffff800d172dcd kernel.debug`_os_log_with_args_internal(oslog=0xffffff800d68eb80, type='\0', format="xnu_printf_prec_panic: setopt() #%llu  unit: %d data: %#x %.*s\n", args=0xffffff82ea3839d0, addr=0xffffff7f8f142e2f, dso=0x0000000000000000) at log.c:189
+    frame #7: 0xffffff800d172e3b kernel.debug`os_log_with_args(oslog=0xffffff800d68eb80, type='\0', format="xnu_printf_prec_panic: setopt() #%llu  unit: %d data: %#x %.*s\n", args=0xffffff82ea3839d0, addr=0xffffff7f8f142e2f) at log.c:160
+    frame #8: 0xffffff800c783115 kernel.debug`vprintf_internal(fmt="xnu_printf_prec_panic: setopt() #%llu  unit: %d data: %#x %.*s\n", ap_in=0xffffff82ea3839d0, caller=0xffffff7f8f142e2f) at printf.c:846
+    frame #9: 0xffffff800c782f12 kernel.debug`printf(fmt="xnu_printf_prec_panic: setopt() #%llu  unit: %d data: %#x %.*s\n") at printf.c:859
+    frame #10: 0xffffff7f8f142e2f xnu_printf_prec_panic`kctl_setopt(kctlref=<unavailable>, unit=<unavailable>, unitinfo=<unavailable>, opt=<unavailable>, data=0xffffff80277ff700, len=10) at kernctl.c:74 [opt]
+    frame #11: 0xffffff800cf0de79 kernel.debug`ctl_ctloutput(so=0xffffff8024167770, sopt=0xffffff82ea383e00) at kern_control.c:1206
+    frame #12: 0xffffff800cfba76c kernel.debug`sosetoptlock(so=0xffffff8024167770, sopt=0xffffff82ea383e00, dolock=1) at uipc_socket.c:4759
+    frame #13: 0xffffff800cfcf292 kernel.debug`setsockopt(p=
+   pid       process             io_policy  wq_state  command             
+   461   0xffffff8027749db0                -1 -1 -1    daemon.out          , uap=0xffffff8022ab99c0, retval=0xffffff8022ab9a00) at uipc_syscalls.c:2421
+    frame #14: 0xffffff800d125e3d kernel.debug`unix_syscall64(state=0xffffff8023c906c0) at systemcalls.c:382
+    frame #15: 0xffffff800c982706 kernel.debug`hndl_unix_scall64 + 22
+
+(lldb) register read
+General Purpose Registers:
+       rax = 0xffffff8027800000
+       rbx = 0xffffff80277ff700
+       rcx = 0xffffff8027800001
+       rdx = 0x0000000000000069
+       rdi = 0xffffff82ea383550
+       rsi = 0x0000000000000069
+       rbp = 0xffffff82ea3829a0
+       rsp = 0xffffff82ea382970
+        r8 = 0x0000000000000000
+        r9 = 0x0000000000000002
+       r10 = 0x000000000000000a
+       r11 = 0x000000000000001c
+       r12 = 0xffffff82ea383fb0
+       r13 = 0x0000000000000000
+       r14 = 0x000000000000000a
+       r15 = 0x0000000000000001
+       rip = 0xffffff800c8f81b6  kernel.debug`strlcpy + 214 at subrs.c:566
+    rflags = 0x0000000000010282
+        cs = 0x0000000000000008
+        fs = 0x0000000000000000
+        gs = 0x0000000000000000
+
+(lldb) up 10
+frame #10: 0xffffff7f8f142e2f xnu_printf_prec_panic`kctl_setopt(kctlref=<unavailable>, unit=<unavailable>, unitinfo=<unavailable>, opt=<unavailable>, data=0xffffff80277ff700, len=10) at kernctl.c:74 [opt]
+   71  	    s = (char *) data;
+   72  	    i = 1 + OSIncrementAtomic64((volatile SInt64 *) &cnt);
+   73  	    /* Assume data is a C-string */
+-> 74  	    LOG("setopt() #%llu  unit: %d data: %#x %.*s",
+   75  	            i, unit, (uint32_t) s, (int) len, s);
+   76  	
+   77  	#if PANIC_QUICKLY
+
+(lldb) register read
+General Purpose Registers:
+       rbx = 0xffffff80277ff700
+       rbp = 0xffffff82ea383a20
+       rsp = 0xffffff82ea383a00
+       r12 = 0xffffff82ea383fb0
+       r13 = 0x0000000000000000
+       r14 = 0x000000000000000a
+       r15 = 0x0000000000000001
+       rip = 0xffffff7f8f142e2f  xnu_printf_prec_panic`kctl_setopt + 65 at kernctl.c:82
+13 registers were unavailable.
+
+(lldb) showbootargs
+debug=0x144 kext-dev-mode=1 kcsuffix=debug pmuflags=1 -v
+
+(lldb) showversion
+Darwin Kernel Version 17.7.0: Thu Jun 21 22:52:15 PDT 2018; root:xnu_debug-4570.71.2~1/DEBUG_X86_64
+
