@@ -10,31 +10,14 @@
 #include <libkern/OSAtomic.h>
 #include "kernctl.h"
 
-/*
- * Assume this kernel control socket is one-seat
- */
-static volatile u_int32_t sc_unit = 0;
-
 static errno_t kctl_connect(
         kern_ctl_ref kctlref,
         struct sockaddr_ctl *sac,
         void **unitinfo)
 {
-    errno_t e = 0;
-
     UNUSED(kctlref, unitinfo);
-
-    if (!OSCompareAndSwap(0, sac->sc_unit, &sc_unit)) {
-        e = EISCONN;
-    }
-
-    if (e == 0) {
-        LOG_DBG("connected  id: %d unit: %d", sac->sc_id, sc_unit);
-    } else {
-        LOG_ERR("cannot connect  errno: %d", e);
-    }
-
-    return e;
+    LOG_DBG("connected  id: %d unit: %d", sac->sc_id, sac->sc_unit);
+    return 0;
 }
 
 /*
@@ -47,14 +30,7 @@ static errno_t kctl_disconnect(
         u_int32_t unit,
         void *unitinfo)
 {
-    UNUSED(kctlref, unitinfo);
-
-    if (OSCompareAndSwap(unit, 0, &sc_unit)) {
-        LOG_DBG("disconnected  unit: %d", unit);
-    } else {
-        LOG_DBG("bad connection  unit: %d", unit);
-    }
-
+    UNUSED(kctlref, unit, unitinfo);
     return 0;
 }
 
@@ -86,12 +62,13 @@ static errno_t kctl_setopt(
     char *s;
     uint64_t i;
 
-    UNUSED(kctlref, unit, unitinfo);
+    UNUSED(kctlref, unitinfo, opt);
 
     s = (char *) data;
     i = 1 + OSIncrementAtomic64((volatile SInt64 *) &cnt);
-    /* Assume data is C string */
-    LOG("setopt()  #%llu opt: %4d data: %#x %.*s", i, opt, (uint32_t) s, (int) len, s);
+    /* Assume data is a C-string */
+    LOG("setopt() #%llu  unit: %d data: %#x %.*s",
+            i, unit, (uint32_t) s, (int) len, s);
 
     return 0;
 }
