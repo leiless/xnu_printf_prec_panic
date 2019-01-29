@@ -32,9 +32,12 @@ $ sudo dmesg | grep xnu_printf_prec_panic
 
 ### Sample output
 
-Tested on macOS High Sierra(10.13.6 17G65)
-
 ```
+$ sw_vers
+ProductName:	Mac OS X
+ProductVersion:	10.13.6
+BuildVersion:	17G65
+
 $ lldb /Library/Developer/KDKs/KDK_10.13.6_17G65.kdk/System/Library/Kernels/kernel.debug
 (lldb) kdp-remote 172.16.41.130
 ...
@@ -56,6 +59,16 @@ $ lldb /Library/Developer/KDKs/KDK_10.13.6_17G65.kdk/System/Library/Kernels/kern
     frame #13: 0xffffff801a3cf292 kernel.debug`setsockopt(p=0xffffff8032bb36d0, uap=0xffffff802dc046d0, retval=0xffffff802dc04710) at uipc_syscalls.c:2421
     frame #14: 0xffffff801a525e3d kernel.debug`unix_syscall64(state=0xffffff8030c812a0) at systemcalls.c:382
     frame #15: 0xffffff8019d82706 kernel.debug`hndl_unix_scall64 + 22
+
+(lldb) up 10
+frame #10: 0xffffff7f9c542dd3 xnu_printf_prec_panic`kctl_setopt(kctlref=<unavailable>, unit=<unavailable>, unitinfo=<unavailable>, opt=<unavailable>, data=<unavailable>, len=10) at kernctl.c:94 [opt]
+   91  	    s = (char *) data;
+   92  	    i = 1 + OSIncrementAtomic64((volatile SInt64 *) &cnt);
+   93  	    /* Assume data is C string */
+-> 94  	    LOG("setopt()  #%llu opt: %4d data: %.*s", i, opt, (int) len, s);
+   95
+   96  	    return 0;
+   97  	}
 
 (lldb) register read
 General Purpose Registers:
@@ -80,6 +93,12 @@ General Purpose Registers:
         cs = 0x0000000000000008
         fs = 0x00000000ffff0000
         gs = 0x000000009b730000
+
+(lldb) showbootargs
+debug=0x144 kext-dev-mode=1 kcsuffix=debug pmuflags=1 -v
+
+(lldb) showversion
+Darwin Kernel Version 17.7.0: Thu Jun 21 22:52:15 PDT 2018; root:xnu_debug-4570.71.2~1/DEBUG_X86_64
 ```
 
 ### Explanation
