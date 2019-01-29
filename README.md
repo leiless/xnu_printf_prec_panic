@@ -39,6 +39,8 @@ ProductVersion:	10.13.6
 BuildVersion:	17G65
 
 $ lldb /Library/Developer/KDKs/KDK_10.13.6_17G65.kdk/System/Library/Kernels/kernel.debug
+(lldb) showlldbtypesummaries
+...
 (lldb) kdp-remote 172.16.41.130
 ...
 (lldb) bt
@@ -114,3 +116,4 @@ Darwin Kernel Version 17.7.0: Thu Jun 21 22:52:15 PDT 2018; root:xnu_debug-4570.
 ---
 
 *Created 190128*
+
