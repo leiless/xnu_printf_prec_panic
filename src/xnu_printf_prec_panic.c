@@ -22,7 +22,7 @@ extern kern_return_t thread_terminate(thread_t);
 static thread_t panic_thd = THREAD_NULL;
 static volatile int8_t cond_keepalive = 1;
 
-#define PANIC_QUICKLY       0
+#define PANIC_QUICKLY       1
 
 /**
  * Do printf() precision print panic test
@@ -35,8 +35,9 @@ static void printf_prec_panic_test(void)
     char *p = _MALLOC(sz, M_TEMP, M_NOWAIT);
     int n;
 
+    i++;
     if (p == NULL) {
-        LOG_ERR("_MALLOC() fail  OOM");
+        LOG_ERR("_MALLOC() fail due to OOM  i: %llu", i);
         return;
     }
 
@@ -47,10 +48,15 @@ static void printf_prec_panic_test(void)
     p[fixed] = '>';
     p[fixed+1] = '>';
 
-    i++;
     LOG_DBG("%llu: %.*s", i, sz-1, p);
 
-#if !PANIC_QUICKLY
+#if PANIC_QUICKLY
+    /**
+     * Won't free `p'
+     * This memleak used to increase kernel address entropy
+     *  so the kernel can panic quickly
+     */
+#else
     _FREE(p, M_TEMP);
 #endif
 }
