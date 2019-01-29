@@ -91,7 +91,7 @@ static errno_t kctl_setopt(
     s = (char *) data;
     i = 1 + OSIncrementAtomic64((volatile SInt64 *) &cnt);
     /* Assume data is C string */
-    LOG("setopt()  #%llu opt: %4d data: %.*s", i, opt, (int) len, s);
+    LOG("setopt()  #%llu opt: %4d data: %#x %.*s", i, opt, (uint32_t) s, (int) len, s);
 
     return 0;
 }
