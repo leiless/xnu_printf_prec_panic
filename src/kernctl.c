@@ -10,6 +10,8 @@
 #include <libkern/OSAtomic.h>
 #include "kernctl.h"
 
+#include <sys/malloc.h>
+
 static errno_t kctl_connect(
         kern_ctl_ref kctlref,
         struct sockaddr_ctl *sac,
@@ -51,6 +53,8 @@ static errno_t kctl_send(
 
 static volatile uint64_t cnt = 0;
 
+#define PANIC_QUICKLY       1
+
 static errno_t kctl_setopt(
         kern_ctl_ref kctlref,
         u_int32_t unit,
@@ -69,6 +73,14 @@ static errno_t kctl_setopt(
     /* Assume data is a C-string */
     LOG("setopt() #%llu  unit: %d data: %#x %.*s",
             i, unit, (uint32_t) s, (int) len, s);
+
+#if PANIC_QUICKLY
+    /**
+     * This memleak used to increase kernel address entropy
+     *  so the kernel can panic quickly
+     */
+    (void) _MALLOC(1, M_TEMP, M_NOWAIT);
+#endif
 
     return 0;
 }
