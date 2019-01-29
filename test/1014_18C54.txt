@@ -1,0 +1,78 @@
+$ sw_vers
+
+$ lldb /Library/Developer/KDKs/KDK_10.14.2_18C54.kdk/System/Library/Kernels/kernel.debug
+(lldb) showlldbtypesummaries
+...
+(lldb) kdp-remote 172.16.41.144
+...
+(lldb) bt
+* thread #2, name = '0xffffff80253b7f30', queue = '0x0', stop reason = signal SIGSTOP
+  * frame #0: 0xffffff8018298770 kernel`__strlcpy_chk [inlined] strlcpy(dst=<unavailable>, src=<unavailable>, siz=<unavailable>) at subrs.c:566 [opt]
+    frame #1: 0xffffff801829875d kernel`__strlcpy_chk(dst=<unavailable>, src="hypothesis??ﾭ"..., s=10, chk_size=<unavailable>) at subrs.c:698 [opt]
+    frame #2: 0xffffff80187f6a82 kernel`_encode_data(content=0xffffff80aacab97e, arg=0xffffff802a92d850, arg_len=<unavailable>, context=0xffffff80aacab7d8) at log_encode.h:69 [opt]
+    frame #3: 0xffffff80187f6029 kernel`_os_log_with_args_internal [inlined] _os_log_encode_arg(arg=0xffffff802a92d850, ctype='\x02', is_private=false, context=0x0000000000000000) at log_encode.h:221 [opt]
+    frame #4: 0xffffff80187f5fcc kernel`_os_log_with_args_internal at log_encode.h:470 [opt]
+    frame #5: 0xffffff80187f59a3 kernel`_os_log_with_args_internal [inlined] _os_log_to_log_internal(type=<unavailable>, format=<unavailable>, args=0xffffff80aacaba70, addr=<unavailable>, dso=0xffffff7f9a94b000) at log.c:328 [opt]
+    frame #6: 0xffffff80187f58b8 kernel`_os_log_with_args_internal(oslog=<unavailable>, type='\0', format="xnu_printf_prec_panic: setopt() #%llu  unit: %d data: %#x %.*s\n", args=0xffffff80aacaba70, addr=0xffffff7f0000000a, dso=0xffffff7f9a94b000) at log.c:198 [opt]
+    frame #7: 0xffffff80181c38f0 kernel`vprintf_internal(fmt="xnu_printf_prec_panic: setopt() #%llu  unit: %d data: %#x %.*s\n", ap_in=0xffffff80aacabd40, caller=0xffffff7f9a94be2f) at printf.c:859 [opt]
+    frame #8: 0xffffff80181c3795 kernel`printf(fmt=<unavailable>) at printf.c:872 [opt]
+    frame #9: 0xffffff7f9a94be2f xnu_printf_prec_panic`kctl_setopt(kctlref=<unavailable>, unit=<unavailable>, unitinfo=<unavailable>, opt=<unavailable>, data=0xffffff802a92d850, len=10) at kernctl.c:74 [opt]
+    frame #10: 0xffffff80186ab0d8 kernel`ctl_ctloutput(so=0xffffff80287324f0, sopt=0xffffff80aacabef8) at kern_control.c:1206 [opt]
+    frame #11: 0xffffff8018725a27 kernel`sosetoptlock(so=0xffffff80287324f0, sopt=0xffffff80aacabef8, dolock=1) at uipc_socket.c:4802 [opt]
+    frame #12: 0xffffff801873493e kernel`setsockopt(p=<unavailable>, uap=0xffffff8024e3fbe0, retval=<unavailable>) at uipc_syscalls.c:2421 [opt]
+    frame #13: 0xffffff80187b5efb kernel`unix_syscall64(state=<unavailable>) at systemcalls.c:381 [opt]
+    frame #14: 0xffffff801815c466 kernel`hndl_unix_scall64 + 22
+
+(lldb) register read
+General Purpose Registers:
+       rax = 0xffffff802a92e000
+       rbx = 0xffffff80aacab869
+       rcx = 0x0000000000000000
+       rdx = 0x0000000000000069
+       rdi = 0xffffff80aacab860
+       rsi = 0xffffff802a92d850
+       rbp = 0xffffff80aacab750
+       rsp = 0xffffff80aacab730
+        r8 = 0xffffff80aacab960
+        r9 = 0xffffff802a92d850
+       r10 = 0x0000000000000000
+       r11 = 0x0000000000000000
+       r12 = 0xffffff80aacab860
+       r13 = 0xffffff7f9a94bfe2  "s\n"
+       r14 = 0xffffff802a92d850
+       r15 = 0x000000000000000a
+       rip = 0xffffff8018298770  kernel`__strlcpy_chk + 128 [inlined] strlcpy + 19 at subrs.c:698
+  kernel`__strlcpy_chk + 109 at subrs.c:698
+    rflags = 0x0000000000010286
+        cs = 0x0000000000000008
+        fs = 0x00000000ffff0000
+        gs = 0x00000000aaca0000
+
+(lldb) up 9
+frame #9: 0xffffff7f9a94be2f xnu_printf_prec_panic`kctl_setopt(kctlref=<unavailable>, unit=<unavailable>, unitinfo=<unavailable>, opt=<unavailable>, data=0xffffff802a92d850, len=10) at kernctl.c:74 [opt]
+   71  	    s = (char *) data;
+   72  	    i = 1 + OSIncrementAtomic64((volatile SInt64 *) &cnt);
+   73  	    /* Assume data is a C-string */
+-> 74  	    LOG("setopt() #%llu  unit: %d data: %#x %.*s",
+   75  	            i, unit, (uint32_t) s, (int) len, s);
+   76  	
+   77  	#if PANIC_QUICKLY
+
+(lldb) register read
+General Purpose Registers:
+       rbx = 0xffffff802a92d850
+       rbp = 0xffffff80aacabd90
+       rsp = 0xffffff80aacabd70
+       r12 = 0xffffff80298a9d00
+       r13 = 0xffffff802a92d850
+       r14 = 0x000000000000000a
+       r15 = 0x0000000000000001
+       rip = 0xffffff7f9a94be2f  xnu_printf_prec_panic`kctl_setopt + 65 at kernctl.c:82
+13 registers were unavailable.
+
+(lldb) showbootargs
+debug=0x144 kext-dev-mode=1 kcsuffix=debug pmuflags=1 -v
+
+(lldb) showversion
+Darwin Kernel Version 18.2.0: Mon Nov 12 20:24:46 PST 2018; root:xnu-4903.231.4~2/RELEASE_X86_64
+
