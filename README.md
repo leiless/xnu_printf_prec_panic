@@ -2,11 +2,11 @@
 
 ### Prelude
 
-This repository used as a bug validation program to verify XNU printf() panic bug with C-string precision modifier, i.e. `%.[precision]s`
+This repository used as a bug validation program to verify XNU printf() panic bug with C-string precision modifier, i.e. `%[.precision]s`
 
 This bug can be reproduce steadily in macOS which uses [log(1)](x-man-page://1/log) as its primary logging system
 
-New [log(1)](x-man-page://1/log) logging system first adopted in macOS Sierra(10.12), currently this kernel panic bug can be reproduced in macOS [10.12, 10.14.2(18D42)]
+New [log(1)](x-man-page://1/log) logging system first adopted in macOS Sierra(10.12), currently this kernel panic bug affects macOS [10.12, 10.14.3(18D42)]
 
 ### Compile & test
 
@@ -112,6 +112,10 @@ Darwin Kernel Version 17.7.0: Thu Jun 21 22:52:15 PDT 2018; root:xnu_debug-4570.
 [printf - C++ Reference](http://www.cplusplus.com/reference/cstdio/printf)
 
 [printf, fprintf, sprintf,... - cppreference.com](https://en.cppreference.com/w/c/io/fprintf)
+
+[xnu/osfmk/kern/printf.c#printf()](http://xr.anadoxin.org/source/xref/macos-10.13.6-highsierra/xnu-4570.71.2/osfmk/kern/printf.c#853)
+
+[xnu/osfmk/device/subrs.c#strlcpy()](http://xr.anadoxin.org/source/xref/macos-10.13.6-highsierra/xnu-4570.71.2/osfmk/device/subrs.c#548)
 
 ---
 
