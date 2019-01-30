@@ -1,0 +1,79 @@
+$ sw_vers
+ProductName:	Mac OS X
+ProductVersion:	10.14.2
+BuildVersion:	18C54
+
+$ lldb /Library/Developer/KDKs/KDK_10.14.2_18C54.kdk/System/Library/Kernels/kernel.debug
+(lldb) showlldbtypesummaries
+...
+(lldb) kdp-remote 172.16.41.144
+...
+(lldb) bt
+* thread #2, name = '0xffffff801d6c41f8', queue = '0x0', stop reason = signal SIGSTOP
+  * frame #0: 0xffffff800ba6f5d6 kernel.debug`strlcpy(dst="0x24529820", src="0x24529820>>ﾭ?"..., siz=11) at subrs.c:566
+    frame #1: 0xffffff800ba6fa29 kernel.debug`__strlcpy_chk(dst="0x24529820", src="0x24529820>>ﾭ?"..., s=11, chk_size=18446744073709551615) at subrs.c:698
+    frame #2: 0xffffff800c34015f kernel.debug`_encode_data(content=0xffffff80183f5bda, arg=0xffffff8024529820, arg_len=11, context=0xffffff80183f5a20) at log_encode.h:69
+    frame #3: 0xffffff800c33f4c5 kernel.debug`_os_log_encode [inlined] _os_log_encode_arg(arg=0xffffff8024529820, arg_len=11, ctype='\x02', is_private=false, context=0xffffff80183f5a20) at log_encode.h:221
+    frame #4: 0xffffff800c33f1d1 kernel.debug`_os_log_encode(format="xnu_printf_prec_panic: [DBG] %llu: %.*s\n", args=0xffffff80183f5aa0, saved_errno=0, context=0xffffff80183f5a20) at log_encode.h:470
+    frame #5: 0xffffff800c33bde7 kernel.debug`_os_log_to_log_internal(oslog=0xffffff800c89ccc8, type='\0', format="xnu_printf_prec_panic: [DBG] %llu: %.*s\n", args=0xffffff80183f5f40, addr=0xffffff7f8e475c7c, dso=0xffffff7f8e475000) at log.c:328
+    frame #6: 0xffffff800c3386fd kernel.debug`_os_log_with_args_internal(oslog=0xffffff800c89ccc8, type='\0', format="xnu_printf_prec_panic: [DBG] %llu: %.*s\n", args=0xffffff80183f5f40, addr=0xffffff7f8e475c7c, dso=0x0000000000000000) at log.c:198
+    frame #7: 0xffffff800c33876b kernel.debug`os_log_with_args(oslog=0xffffff800c89ccc8, type='\0', format="xnu_printf_prec_panic: [DBG] %llu: %.*s\n", args=0xffffff80183f5f40, addr=0xffffff7f8e475c7c) at log.c:169
+    frame #8: 0xffffff800b8e10e5 kernel.debug`vprintf_internal(fmt="xnu_printf_prec_panic: [DBG] %llu: %.*s\n", ap_in=0xffffff80183f5f40, caller=0xffffff7f8e475c7c) at printf.c:859
+    frame #9: 0xffffff800b8e0ee2 kernel.debug`printf(fmt="xnu_printf_prec_panic: [DBG] %llu: %.*s\n") at printf.c:872
+    frame #10: 0xffffff7f8e475c7c xnu_printf_prec_panic`thread_runloop [inlined] printf_prec_panic_test at xnu_printf_prec_panic.c:51 [opt]
+    frame #11: 0xffffff7f8e475bbe xnu_printf_prec_panic`thread_runloop(arg=<unavailable>, wres=<unavailable>) at xnu_printf_prec_panic.c:82 [opt]
+    frame #12: 0xffffff800bacc42e kernel.debug`call_continuation + 46
+
+(lldb) register read
+General Purpose Registers:
+       rax = 0xffffff802452a000
+       rbx = 0xffffff7f8e4760e8  thread_runloop.ts
+       rcx = 0xffffff802452a001
+       rdx = 0x0000000000000030
+       rdi = 0xffffff80183f5ac0
+       rsi = 0x0000000000000030
+       rbp = 0xffffff80183f4f10
+       rsp = 0xffffff80183f4ee0
+        r8 = 0x0000000000000000
+        r9 = 0x0000000000000002
+       r10 = 0x000000000000000b
+       r11 = 0x0000000000000010
+       r12 = 0xffffff7f8e475f81  "printf_prec_panic_test"
+       r13 = 0xffffff8024529820
+       r14 = 0xffffff7f8e475e6d  "src/xnu_printf_prec_panic.c"
+       r15 = 0xffffff7f8e476008  cond_keepalive
+       rip = 0xffffff800ba6f5d6  kernel.debug`strlcpy + 214 at subrs.c:566
+    rflags = 0x0000000000010282
+        cs = 0x0000000000000008
+        fs = 0x0000000000000000
+        gs = 0x00000000ffff0000
+
+(lldb) up 10
+frame #10: 0xffffff7f8e475c7c xnu_printf_prec_panic`thread_runloop [inlined] printf_prec_panic_test at xnu_printf_prec_panic.c:51 [opt]
+   48  	    p[fixed] = '>';
+   49  	    p[fixed+1] = '>';
+   50  	
+-> 51  	    LOG_DBG("%llu: %.*s", i, sz-1, p);
+   52  	
+   53  	#if PANIC_QUICKLY
+   54  	    /**
+
+(lldb) register read
+General Purpose Registers:
+       rbx = 0xffffff7f8e4760e8  thread_runloop.ts
+       rbp = 0xffffff80183f5fa0
+       rsp = 0xffffff80183f5f70
+       r12 = 0xffffff7f8e475f81  "printf_prec_panic_test"
+       r13 = 0xffffff8024529820
+       r14 = 0xffffff7f8e475e6d  "src/xnu_printf_prec_panic.c"
+       r15 = 0xffffff7f8e476008  cond_keepalive
+       rip = 0xffffff7f8e475c7c  xnu_printf_prec_panic`thread_runloop + 245 [inlined] printf_prec_panic_test + 190 at xnu_printf_prec_panic.c:82
+  xnu_printf_prec_panic`thread_runloop + 55 at xnu_printf_prec_panic.c:82
+13 registers were unavailable.
+
+(lldb) showbootargs
+debug=0x144 kext-dev-mode=1 kcsuffix=debug pmuflags=1 -v
+
+(lldb) showversion
+Darwin Kernel Version 18.2.0: Mon Nov 12 20:23:32 PST 2018; root:xnu_debug-4903.231.4~2/DEBUG_X86_64
+
