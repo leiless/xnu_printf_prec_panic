@@ -1,4 +1,7 @@
 $ sw_vers
+ProductName:	Mac OS X
+ProductVersion:	10.14.2
+BuildVersion:	18C54
 
 $ lldb /Library/Developer/KDKs/KDK_10.14.2_18C54.kdk/System/Library/Kernels/kernel.debug
 (lldb) showlldbtypesummaries
