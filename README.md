@@ -36,7 +36,7 @@ Please check text files under `test/` directory
 
 ### Explanation
 
-**TODO: tl;dr**
+Please refers to [Tracking down a XNU printf() precision modifier panic bug](http://junkman.cn/p/19/01_xnu_printf_precision_panic.html)
 
 ### *References*
 
